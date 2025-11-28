@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.Request.Product;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace Application.IRepository
 	{
 		Task<Product?> GetByIdAsync(int id);
 		Task<List<Product>> GetAllAsync();
-		Task<Product> AddAsync(Product product);
+        Task<(List<Product> , int)> GetAllAsync(ProductParams param);
+
+        Task<Product> AddAsync(Product product);
 		Task<Product> SaveChange(Product product);
 		Task DeleteAsync(int id);
     }

@@ -1,11 +1,14 @@
-﻿using Api.Middlewares;
+﻿using Api.Extentions;
+using Api.Middlewares;
 using Application.IRepository;
+using Application.IServices;
 using Application.Mappers;
 using Application.Services;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,13 +24,26 @@ builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("De
 
 // Dependency Injection
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddSingleton<IProductMapper>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IUploadService, UploadService>();
+
+
+builder.Services.AddAutoMapper(cfg =>
+{
+	cfg.AddProfile<ProductMapper>();
+    cfg.AddProfile<CategoryMapper>();
+    cfg.AddProfile<UserMapper>();
+
+}); 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerConfig();
 
 AppSettings.Initialize(builder.Configuration);
 
@@ -36,6 +52,7 @@ var a1 = AppSettings.Service1;
 
 builder.Services.AddExceptionHandler<BussinessExceptionHandler>(); // Đăng ký handler global
 builder.Services.AddProblemDetails();
+builder.Services.AddIdentityService(builder.Configuration); // Đăng ký dịch vụ xác thực và ủy quyền
 var app = builder.Build();
 
 await Init(app);
@@ -49,9 +66,9 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.MapControllers();
 
 Log.Logger.Information($"Service Started");
@@ -64,10 +81,5 @@ async Task Init(WebApplication app)
 	using (var scope = app.Services.CreateScope())
 	{
 		var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-		//if (db.Database.GetPendingMigrations().Any())
-		//{
-		//	db.Database.Migrate();
-		//}
 	}
 }

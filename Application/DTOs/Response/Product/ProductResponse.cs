@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Application.DTOs.Response.Category;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,7 @@ namespace Application.DTOs.Response.Product
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public ProductStatus Status { get; set; }
+
+        public CategoryResponse Category { get; set; }
     }
 }

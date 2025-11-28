@@ -3,12 +3,14 @@ using Application.DTOs.Request.Product;
 using Application.DTOs.Response.Product;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
 	[ApiController]
 	[Route("api/products")]
+	[Authorize]
 	public class ProductsController : BaseController
 	{
 		private readonly IProductService _service;
@@ -19,10 +21,12 @@ namespace Api.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+		[AllowAnonymous]
+		public async Task<IActionResult> GetAll([FromQuery] ProductParams productParams)
 		{
-			var products = await _service.GetAllProductsAsync();
-            return Ok(BaseResponseDTO<List<ProductResponse>>.SuccessResponse(products, null, "Get all product successfully"));
+			var products = await _service.GetAllProductsAsync(productParams);
+			return Ok(products);
+            //return Ok(BaseResponseDTO<List<ProductResponse>>.SuccessResponse(products, null, "Get all product successfully"));
         }
 
         [HttpGet("{id}")]
@@ -33,6 +37,7 @@ namespace Api.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = "ADMIN")]
 		public async Task<IActionResult> Create([FromBody] AddProductReq req)
 		{
 			var product = await _service.AddProductAsync(req);
@@ -40,14 +45,16 @@ namespace Api.Controllers
 		}
 
 		[HttpPut]
-		public async Task<IActionResult> Update([FromBody] UpdateProductReq req)
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Update([FromBody] UpdateProductReq req)
 		{
 			var product = await _service.UpdateProductAsync(req);
             return StatusCode(201, BaseResponseDTO<ProductResponse>.SuccessResponse(product, null, "Get detail product successfully"));
         }
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Delete(int id)
 		{
 			await _service.DeleteProductAsync(id);
             return NoContent();

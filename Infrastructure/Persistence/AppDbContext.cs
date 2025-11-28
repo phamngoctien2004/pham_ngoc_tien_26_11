@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Core.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,10 @@ namespace Infrastructure.Persistence
 		public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
 		public DbSet<Product> Products => Set<Product>();
-
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		public DbSet<Category> Categories => Set<Category>();
+		public DbSet<User> Users => Set<User>();
+		public DbSet<Role> Roles => Set<Role>();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 

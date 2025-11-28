@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Core.Entities;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,8 @@ namespace Domain.Entities
 		public int Quantity { get; set; }
 		
         public ProductStatus Status { get; set; }
+
+		public int CategoryId { get; set; }
+		public Category Category { get; set; }
 	}
 }

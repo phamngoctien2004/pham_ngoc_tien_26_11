@@ -7,7 +7,9 @@ namespace Application.DTOs.Common
 		public int Code { get; set; } = 0;
 		public bool Success { get; set; } = true;
 		public string? Message { get; set; }
-		public T? Data { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public T? Data { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MetaDataDTO? MetaData { get; set; }
