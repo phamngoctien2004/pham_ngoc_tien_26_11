@@ -1,9 +1,11 @@
 ﻿using Application.DTOs.Request.Auth;
 using Application.DTOs.Response.Auth;
 using Application.DTOs.Response.User;
+using Application.Exceptions;
 using Application.IServices;
 using AutoMapper;
 using Core.Entities;
+using Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +31,7 @@ namespace Application.Services
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.Password))
             {
-                throw new Exception("Invalid credentials");
+                throw new AppException(ErrorStatus.UnAuthentication);
             }
             return new AuthResponse()
             {
@@ -45,7 +47,7 @@ namespace Application.Services
             
             if(user != null)
             {
-                throw new Exception("Email Existed");
+                throw new AppException(ErrorStatus.EmailExisted);
             }
             user = _mapper.Map<User>(registerRequest);
             var newUser = await _userService.AddUser(user);

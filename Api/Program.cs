@@ -10,11 +10,19 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-
+using Serilog.Events;
 var builder = WebApplication.CreateBuilder(args);
 
 // Đọc cấu hình từ appsettings.json
-Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+Log.Logger = new LoggerConfiguration()
+	.ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+	.WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .MinimumLevel.Information()
+	.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware", LogEventLevel.Fatal) // tắt exception nhả tên lỗi dài
+    .CreateLogger();
 
 // Gắn Serilog vào host
 builder.Host.UseSerilog();
@@ -44,7 +52,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerConfig();
-
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0); // Mặc định là v1.0
+    options.AssumeDefaultVersionWhenUnspecified = true; // Nếu client không gửi version, tự hiểu là v1
+    options.ReportApiVersions = true; // Trả về header cho biết API hỗ trợ version nào
+});
 AppSettings.Initialize(builder.Configuration);
 
 var a = AppSettings.InternalToken;
@@ -56,13 +69,13 @@ builder.Services.AddIdentityService(builder.Configuration); // Đăng ký dịch
 var app = builder.Build();
 
 await Init(app);
-
+app.UseSerilogRequestLogging();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
 	app.UseSwagger();
 	app.UseSwaggerUI();
-}
+//}
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();

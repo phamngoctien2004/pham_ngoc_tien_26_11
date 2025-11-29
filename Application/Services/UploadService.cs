@@ -1,5 +1,7 @@
 ﻿using Application.DTOs.Request.Upload;
+using Application.Exceptions;
 using Application.IServices;
+using Core.Enums;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Services
@@ -22,19 +24,19 @@ namespace Application.Services
         {
             if (file == null || file.FileStream == null)
             {
-                throw new ArgumentException("File không hợp lệ hoặc bị rỗng.");
+                throw new AppException(ErrorStatus.FileNotEmpty);
             }
 
             var maxBytes = UploadReq.MaxSize * 1024 * 1024; // 10mb
             if(file.Length > maxBytes)
             {
-                throw new ArgumentException("File phải nhỏ hơn 10 MB");
+                throw new AppException(ErrorStatus.FileTooLarge);
             }
 
             var ext = Path.GetExtension(file.FileName).ToLower();
             if (!UploadReq.AllowedExtension.Contains(ext))
             {
-                throw new ArgumentException("Định dạng file không hợp lệ");
+                throw new AppException(ErrorStatus.FileNotAllowed);
             }
             return ext;
         }

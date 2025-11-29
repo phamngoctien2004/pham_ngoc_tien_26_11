@@ -2,6 +2,7 @@
 using Application.DTOs.Request.Product;
 using Application.DTOs.Response.Product;
 using Application.Services;
+using Asp.Versioning;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace Api.Controllers
 {
 	[ApiController]
 	[Route("api/products")]
+	[ApiVersion("1.0")]
 	[Authorize]
 	public class ProductsController : BaseController
 	{
